@@ -1,30 +1,32 @@
-const http = require("http");
-const url = require("url");
+const http = require('http');
+const url = require('url');
 const {
-  promises: { readFile }
-} = require("fs");
+  promises: { readFile },
+} = require('fs');
 
 const fileName = process.argv[2];
 
 const app = http.createServer((req, res) => {
   const reqUrl = url.parse(req.url).pathname;
-  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
 
-  if (reqUrl === "/") {
-    res.write("Hello Holberton School!");
+  if (reqUrl === '/') {
+    res.write('Hello Holberton School!');
     res.end();
-  } else if (reqUrl === "/students") {
+  } else if (reqUrl === '/students') {
+    res.write('This is the list of our students');
+
     readFile(fileName)
       .then((fileBuffer) => {
         const fileData = fileBuffer.toString();
-        const lines = fileData.split("\n").slice(1);
+        const lines = fileData.split('\n').slice(1);
         const result = {};
         let studentCount = 0;
 
         for (const line of lines) {
           if (line.length !== 0) {
             studentCount += 1;
-            const tokens = line.split(",");
+            const tokens = line.split(',');
             const firstName = tokens[0];
             const subject = tokens[3];
 
@@ -37,22 +39,19 @@ const app = http.createServer((req, res) => {
           }
         }
 
-        let text = "This is the list of our students";
-        text += `\nNumber of students: ${studentCount}`;
+        let text = `\nNumber of students: ${studentCount}`;
 
         for (const field in result) {
           if (Object.getOwnPropertyNames(result).includes(field)) {
             text += `\nNumber of students in ${field}: ${
               result[field].count
-            }. List: ${result[field].students.join(", ")}`;
+            }. List: ${result[field].students.join(', ')}`;
           }
         }
-        res.write(text);
-        res.end();
+        res.end(text);
       })
       .catch(() => {
-        res.write("Cannot load the database");
-        res.end();
+        res.end('\nCannot load the database');
       });
   }
 });
