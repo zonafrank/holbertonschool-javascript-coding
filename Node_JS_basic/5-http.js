@@ -14,7 +14,6 @@ const app = http.createServer((req, res) => {
     res.write("Hello Holberton School!");
     res.end();
   } else if (reqUrl === "/students") {
-    let text = "This is the list of our students";
     readFile(fileName)
       .then((fileBuffer) => {
         const fileData = fileBuffer.toString();
@@ -38,6 +37,7 @@ const app = http.createServer((req, res) => {
           }
         }
 
+        let text = "This is the list of our students";
         text += `\nNumber of students: ${studentCount}`;
 
         for (const field in result) {
