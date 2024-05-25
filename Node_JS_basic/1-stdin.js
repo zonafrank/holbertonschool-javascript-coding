@@ -6,6 +6,6 @@ process.on('exit', () => {
 
 process.stdin.on('data', (data) => {
   const name = data.toString().trim();
-  console.log(`Your name is: ${name}\n\n`);
+  process.stdin.write(`Your name is: ${name}`);
   process.exit();
 });
