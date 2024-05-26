@@ -5,8 +5,10 @@ const {
 // import { readFile } from "node:fs/promises";
 
 async function readDatabase(filePath) {
+  console.log(`filePath: ${filePath}`);
   return new Promise((resolve, reject) => readFile(filePath)
     .then((fileBuffer) => {
+      console.log(`fileBuffer: ${fileBuffer}`);
       const fileData = fileBuffer.toString();
       const lines = fileData.split('\n').slice(1);
       const result = {};
@@ -28,6 +30,7 @@ async function readDatabase(filePath) {
       resolve(result);
     })
     .catch((err) => {
+      console.log(err);
       reject(err);
     }));
 }
