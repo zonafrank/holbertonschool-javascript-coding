@@ -9,15 +9,13 @@ class StudentsController {
     try {
       const data = await readDatabase(process.argv[2]);
       const dataKeys = Object.keys(data).sort();
-      response.status(200);
-      response.write("This is the list of our students");
+      let responseText = "This is the list of our students";
       for (const k of dataKeys) {
         const students = data[k];
         const studentsListText = students.join(", ");
-        const text = `\nNumber of students in ${k}: ${students.length}, List: ${studentsListText}`;
-        response.write(text);
+        responseText += `\nNumber of students in ${k}: ${students.length}, List: ${studentsListText}`;
       }
-      response.end();
+      response.status(200).send(responseText);
     } catch (error) {
       response.writeHead(500);
       response.end("Cannot load the database");
