@@ -18,7 +18,8 @@ class StudentsController {
       }
       response.end();
     } catch (error) {
-      response.status(500).send('Cannot load the database');
+      response.writeHead(500);
+      response.end('Cannot load the database');
     }
   }
 
@@ -26,13 +27,15 @@ class StudentsController {
     try {
       const { major } = request.params;
       if (major !== 'CS' && major !== 'SWE') {
-        return response.status(500).send('Major parameter must be CS or SWE');
+        response.writeHead(500);
+        response.end('Major parameter must be CS or SWE');
       }
 
       const data = await readDatabase(fileName);
       return response.status(200).send(`List: ${data[major].join(', ')}`);
     } catch (error) {
-      return response.status(500).send(error);
+      response.writeHead(500);
+      return response.end('Cannot load the database');
     }
   }
 }
