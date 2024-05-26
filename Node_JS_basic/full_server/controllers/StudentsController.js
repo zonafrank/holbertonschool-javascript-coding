@@ -27,7 +27,7 @@ class StudentsController {
       const { major } = request.params;
       if (major !== "CS" && major !== "SWE") {
         response.writeHead(500);
-        response.end("Major parameter must be CS or SWE");
+        return response.end("Major parameter must be CS or SWE");
       }
 
       const data = await readDatabase(process.argv[2]);
