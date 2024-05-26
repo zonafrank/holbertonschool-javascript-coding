@@ -1,65 +1,45 @@
+// const { readDatabase } = require("../utils");
 import readDatabase from '../utils';
 
-// const filename = './database.csv';
-const filename = process.argv[2];
+const fileName = process.argv[2];
+console.log(`process.argv: ${process.argv}`);
+console.log(`process.env: ${process.env}`);
 
-export default class StudentsController {
-  static getAllStudents(request, response) {
-    readDatabase(filename)
-      .then((studentsData) => {
-        // console.log(studentsData);
-
-        response.write('This is the list of our students\n');
-        response.write(
-          `Number of students in CS: ${
-            studentsData.CS.length
-          }. List: ${studentsData.CS.join(', ')}\n`,
-        );
-        response.end(
-          `Number of students in SWE: ${
-            studentsData.SWE.length
-          }. List: ${studentsData.SWE.join(', ')}`,
-        );
-      })
-      .catch(() => {
-        response.writeHead(500);
-        response.end('Cannot load the database');
-      });
+class StudentsController {
+  static async getAllStudents(request, response) {
+    try {
+      const data = await readDatabase(fileName);
+      const dataKeys = Object.keys(data).sort();
+      response.status(200);
+      response.write('This is the list of our students');
+      for (const k of dataKeys) {
+        const students = data[k];
+        const studentsListText = students.join(', ');
+        const text = `\nNumber of students in ${k}: ${students.length}, List: ${studentsListText}`;
+        response.write(text);
+      }
+      response.end();
+    } catch (error) {
+      response.writeHead(500);
+      response.end('Cannot load the database');
+    }
   }
 
-  static getAllStudentsByMajor(request, response) {
-    readDatabase(filename)
-      .then((studentsData) => {
-        // console.log(studentsData);
-        // console.log(this._major);
-
-        const { major } = request.params;
-
-        switch (major) {
-          case 'CS':
-            response.write('This is the list of our students\n');
-            response.write(
-              `Number of students in CS: ${
-                studentsData.CS.length
-              }. List: ${studentsData.CS.join(', ')}\n`,
-            );
-            break;
-          case 'SWE':
-            response.write('This is the list of our students\n');
-            response.end(
-              `Number of students in SWE: ${
-                studentsData.SWE.length
-              }. List: ${studentsData.SWE.join(', ')}`,
-            );
-            break;
-          default:
-            response.writeHead(500);
-            response.end('Major parameter must be CS or SWE');
-        }
-      })
-      .catch(() => {
+  static async getAllStudentsByMajor(request, response) {
+    try {
+      const { major } = request.params;
+      if (major !== 'CS' && major !== 'SWE') {
         response.writeHead(500);
-        response.end('Cannot load the database');
-      });
+        response.end('Major parameter must be CS or SWE');
+      }
+
+      const data = await readDatabase(fileName);
+      return response.status(200).send(`List: ${data[major].join(', ')}`);
+    } catch (error) {
+      response.writeHead(500);
+      return response.end('Cannot load the database');
+    }
   }
 }
+
+export default StudentsController;
