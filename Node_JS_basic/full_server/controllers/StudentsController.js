@@ -13,7 +13,7 @@ class StudentsController {
       for (const k of dataKeys) {
         const students = data[k];
         const studentsListText = students.join(", ");
-        responseText += `\nNumber of students in ${k}: ${students.length}, List: ${studentsListText}`;
+        responseText += `\nNumber of students in ${k}: ${students.length}. List: ${studentsListText}`;
       }
       response.status(200).send(responseText);
     } catch (error) {
