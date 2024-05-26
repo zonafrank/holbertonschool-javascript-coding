@@ -1,12 +1,12 @@
 // const { readDatabase } = require("../utils");
 import readDatabase from '../utils';
 
-const fileName = process.argv[2];
-console.log(`process.argv: ${process.argv}`);
-console.log(`process.env.NODE_ENV: ${process.env.NODE_ENV}`);
+// const fileName = process.argv[2];
+const fileName = './database.csv';
 
 class StudentsController {
   static async getAllStudents(request, response) {
+    console.log(`process.argv: ${process.argv}`);
     try {
       const data = await readDatabase(fileName);
       const dataKeys = Object.keys(data).sort();
