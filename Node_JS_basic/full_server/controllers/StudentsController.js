@@ -3,7 +3,7 @@ import readDatabase from '../utils';
 
 const fileName = process.argv[2];
 console.log(`process.argv: ${process.argv}`);
-console.log(`process.env: ${process.env}`);
+console.log(`process.env.mode: ${process.env.mode}`);
 
 class StudentsController {
   static async getAllStudents(request, response) {
