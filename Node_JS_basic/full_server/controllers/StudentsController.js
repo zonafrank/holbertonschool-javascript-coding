@@ -1,51 +1,65 @@
-const readDatabase = require("../utils");
+import readDatabase from '../utils';
 
-class StudentsController {
-  static async getAllStudents(req, res) {
-    try {
-      const dict = await readDatabase(process.argv[2]);
-      let result = "This is the list of our students";
-      for (const key in dict) {
-        if (Object.prototype.hasOwnProperty.call(dict, key)) {
-          // add a space in front of each name except the first one
-          const newValue = dict[key].map((name) =>
-            dict[key].indexOf(name) === 0 ? name : ` ${name}`
-          );
-          result += `\nNumber of students in ${key}: ${dict[key].length}. List: ${newValue}`;
-        }
-      }
-      res.status(200).send(result);
-      res.end();
-    } catch (error) {
-      res.status(500).send("Cannot load the database");
-    }
+// const filename = './database.csv';
+const filename = process.argv[2];
+
+export default class StudentsController {
+  static getAllStudents(request, response) {
+    readDatabase(filename)
+      .then((studentsData) => {
+        // console.log(studentsData);
+
+        response.write('This is the list of our students\n');
+        response.write(
+          `Number of students in CS: ${
+            studentsData.CS.length
+          }. List: ${studentsData.CS.join(', ')}\n`,
+        );
+        response.end(
+          `Number of students in SWE: ${
+            studentsData.SWE.length
+          }. List: ${studentsData.SWE.join(', ')}`,
+        );
+      })
+      .catch(() => {
+        response.writeHead(500);
+        response.end('Cannot load the database');
+      });
   }
 
-  static async getAllStudentsByMajor(req, res) {
-    try {
-      const { major } = req.params;
-      if (major !== "CS" && major !== "SWE") {
-        res.status(500).send("Major parameter must be CS or SWE");
-        return res.end();
-      }
-      const dict = await readDatabase(process.argv[2]);
-      let result = "";
-      for (const key in dict) {
-        if (Object.prototype.hasOwnProperty.call(dict, key)) {
-          if (key === major) {
-            // add a space in front of each name except the first one
-            const newValue = dict[key].map((name) =>
-              dict[key].indexOf(name) === 0 ? name : ` ${name}`
+  static getAllStudentsByMajor(request, response) {
+    readDatabase(filename)
+      .then((studentsData) => {
+        // console.log(studentsData);
+        // console.log(this._major);
+
+        const { major } = request.params;
+
+        switch (major) {
+          case 'CS':
+            response.write('This is the list of our students\n');
+            response.write(
+              `Number of students in CS: ${
+                studentsData.CS.length
+              }. List: ${studentsData.CS.join(', ')}\n`,
             );
-            result = `List: ${newValue}`;
-          }
+            break;
+          case 'SWE':
+            response.write('This is the list of our students\n');
+            response.end(
+              `Number of students in SWE: ${
+                studentsData.SWE.length
+              }. List: ${studentsData.SWE.join(', ')}`,
+            );
+            break;
+          default:
+            response.writeHead(500);
+            response.end('Major parameter must be CS or SWE');
         }
-      }
-      return res.status(200).send(result);
-    } catch (error) {
-      return res.status(500).send("Cannot load the database");
-    }
+      })
+      .catch(() => {
+        response.writeHead(500);
+        response.end('Cannot load the database');
+      });
   }
 }
-
-module.exports = StudentsController;
