@@ -1,43 +1,51 @@
-// const { readDatabase } = require("../utils");
-import readDatabase from '../utils';
-
-const fileName = process.argv[2];
+const readDatabase = require("../utils");
 
 class StudentsController {
-  static async getAllStudents(request, response) {
+  static async getAllStudents(req, res) {
     try {
-      const data = await readDatabase(fileName);
-      const dataKeys = Object.keys(data).sort();
-      response.status(200);
-      response.write('This is the list of our students');
-      for (const k of dataKeys) {
-        const students = data[k];
-        const studentsListText = students.join(', ');
-        const text = `\nNumber of students in ${k}: ${students.length}, List: ${studentsListText}`;
-        response.write(text);
+      const dict = await readDatabase(process.argv[2]);
+      let result = "This is the list of our students";
+      for (const key in dict) {
+        if (Object.prototype.hasOwnProperty.call(dict, key)) {
+          // add a space in front of each name except the first one
+          const newValue = dict[key].map((name) =>
+            dict[key].indexOf(name) === 0 ? name : ` ${name}`
+          );
+          result += `\nNumber of students in ${key}: ${dict[key].length}. List: ${newValue}`;
+        }
       }
-      response.end();
+      res.status(200).send(result);
+      res.end();
     } catch (error) {
-      response.writeHead(500);
-      response.end('Cannot load the database');
+      res.status(500).send("Cannot load the database");
     }
   }
 
-  static async getAllStudentsByMajor(request, response) {
+  static async getAllStudentsByMajor(req, res) {
     try {
-      const { major } = request.params;
-      if (major !== 'CS' && major !== 'SWE') {
-        response.writeHead(500);
-        response.end('Major parameter must be CS or SWE');
+      const { major } = req.params;
+      if (major !== "CS" && major !== "SWE") {
+        res.status(500).send("Major parameter must be CS or SWE");
+        return res.end();
       }
-
-      const data = await readDatabase(fileName);
-      return response.status(200).send(`List: ${data[major].join(', ')}`);
+      const dict = await readDatabase(process.argv[2]);
+      let result = "";
+      for (const key in dict) {
+        if (Object.prototype.hasOwnProperty.call(dict, key)) {
+          if (key === major) {
+            // add a space in front of each name except the first one
+            const newValue = dict[key].map((name) =>
+              dict[key].indexOf(name) === 0 ? name : ` ${name}`
+            );
+            result = `List: ${newValue}`;
+          }
+        }
+      }
+      return res.status(200).send(result);
     } catch (error) {
-      response.writeHead(500);
-      return response.end('Cannot load the database');
+      return res.status(500).send("Cannot load the database");
     }
   }
 }
 
-export default StudentsController;
+module.exports = StudentsController;
